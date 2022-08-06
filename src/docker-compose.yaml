@@ -1,0 +1,130 @@
+version: '3'
+services:
+  #################### Database container #####################
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    build: ./requirements/mariadb/
+    restart: always
+    env_file: 
+     - .env
+    volumes:
+      - 'mariadb:/var/lib/mysql'
+    networks:
+      - inception_net
+  #################### Wordpress container ##################### 
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    build: ./requirements/wordpress/
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+    volumes:
+      - 'wordpress:/var/www/html'
+    networks:
+      - inception_net
+  #################### Nginx container #####################
+  nginx:
+    image: nginx
+    container_name: nginx
+    build: ./requirements/nginx/
+    restart: always
+    env_file: .env
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    volumes:
+      - 'wordpress:/var/www/html'
+    networks:
+      - inception_net
+######################## Adminer service ##############
+  adminer:
+    image: adminer
+    container_name: adminer
+    build: ./requirements/Bonus/Adminer/
+    restart: always
+    env_file: .env
+    depends_on:
+      - wordpress
+    ports:
+      - "8080:80"
+    networks:
+      - inception_net
+  ############ redis ###########################
+  redis:
+    image: redis
+    container_name: redis
+    build: ./requirements/Bonus/redis/
+    restart: always
+    env_file: .env
+    depends_on:
+      - wordpress
+    ports:
+      - "6379:6379"
+    networks:
+      - inception_net
+##################### Web #######################
+  web:
+    image: web
+    container_name: web
+    build: ./requirements/Bonus/web/
+    restart: always
+    env_file: .env
+    ports:
+      - "1024:80"
+    networks:
+      - inception_net
+##################################################
+
+ ###################FTP######################################3     
+  ftp:
+    image: ftp
+    container_name: ftp
+    build:
+      context: ./requirements/Bonus/ftp
+      args:
+        USER_FTP : ${USER_FTP}
+    env_file: .env
+    depends_on:
+      - wordpress
+    ports:
+      - "21:21"
+      - 10090-10099:10090-10099
+    volumes:
+      - wordpress:/home/yhakkach/ftp
+    networks:
+      - inception_net
+#################################################################################################      
+  ctop:
+    image: ctop
+    container_name: ctop
+    stdin_open: true
+    tty: true
+    build: ./requirements//Bonus/ctop/
+    restart: always
+    env_file: .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro \ctop
+ ###################################################     
+ #################################################   
+volumes:
+  mariadb:
+    #driver: local
+    #driver_opts:
+      #type: none
+      #device: /Users/yhakkach/goinfre/data/db
+     # o: bind
+  wordpress:
+    #driver_opts:
+      #type: none
+      #device: /yhakkach/goinfre/data/wp
+     # o: bind
+  ctop :
+#################### Networks Section #####################
+networks:
+  inception_net:
+    driver: bridge
