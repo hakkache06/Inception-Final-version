@@ -1,9 +1,8 @@
-SRCS	=	./src/docker-compose.yml
+SRCS	= src/docker-compose.yaml
 all:	up
 up:
-	
-	#mkdir -p /home/yhakkach/data/wp
-	#mkdir -p /home/yhakkach/data/db
+	mkdir -p /home/yhakkach/data/wp
+	mkdir -p /home/yhakkach/data/db
 	docker-compose -f $(SRCS) up --build -d
 down:
 	docker-compose -f $(SRCS) down
@@ -17,7 +16,7 @@ clean:
 	docker-compose -f $(SRCS) down --rmi all -v
 fclean:
 	docker-compose -f $(SRCS) down --rmi all -v
-	#rm -rf /Users/yhakkach/Desktop/data/
+	rm -rf /home/yhakkach/data/
 
 prune:	fclean
 	docker system prune -f --all --volumes

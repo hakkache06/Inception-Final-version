@@ -1,13 +1,9 @@
 FROM debian:buster
-
-ARG USER_FTP
-
 RUN apt update && \
 apt install -y vsftpd openssl
-
-RUN adduser --gecos $USER_FTP --disabled-password $USER_FTP 
-RUN echo $USER_FTP:$USER_FTP | chpasswd
-RUN mkdir -p /home/$USER_FTP
+RUN adduser --gecos yhakkach --disabled-password yhakkach 
+RUN echo yhakkach:yhakkach | chpasswd
+RUN mkdir -p /home/yhakkach
 RUN echo yhakkach >> /etc/vsftpd.userlist
 ADD ./conf/vsftpd.conf /etc/vsftpd.conf
 ADD ./conf/start.sh .
